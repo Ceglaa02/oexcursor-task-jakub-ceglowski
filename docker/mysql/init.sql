@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    mail VARCHAR(255) NOT NULL UNIQUE,
+    age INT NOT NULL,
+    login VARCHAR(255) NOT NULL UNIQUE
+);
+
+ALTER USER 'super_user'@'%' IDENTIFIED BY '$oexcursor-34092-alpha';
+GRANT ALL PRIVILEGES ON oexcursor.* TO 'super_user'@'%';
+FLUSH PRIVILEGES;
