@@ -4,13 +4,13 @@ services:
   app:
     build:
       context: .
-      dockerfile: docker/backend/Dockerfile
+      dockerfile: docker/app/Dockerfile
     container_name: php-symfony
     ports:
       - "443:443"
       - "80:80"
     volumes:
-      - ./app/backend/:/var/www/html
+      - ./app/:/var/www/html
     depends_on:
       - db
     environment:
