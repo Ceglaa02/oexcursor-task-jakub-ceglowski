@@ -5,18 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}OexCursor{% endblock %}</title>
     {% block stylesheets %}
+        <link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     {% endblock %}
 
     {% block javascripts %}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="/js/index.min.js" type="text/javascript"></script>
     {% endblock %}
 </head>
 <body>
-{% block body %}
-    {% for user in users %}
-        <li>{{ user.name }} - {{ user.email }}</li>
-    {% else %}
-        <li>Brak produktów</li>
-    {% endfor %}
-{% endblock %}
+<main class="container mt-2">
+    <section class="card">
+        <div class="card-header"></div>
+        {% if users %}
+        <div class="card-body row">
+            {% for user in users %}
+                <div class="col-12 row my-1">
+                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Name: </span>{{ user.name }}</div>
+                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Surname: </span>{{ user.surname }}</div>
+                    <div class="col-6 col-lg-3 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Email: </span>{{ user.email }}</div>
+                    <div class="col-6 col-lg-1 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Age: </span>{{ user.age }}</div>
+                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Login: </span>{{ user.login }}</div>
+                    <div class="col-12 col-lg-2 d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-primary btn-sm me-1">Edit</button>
+                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+            {% else %}
+        {% endif %}
+        <div class="card-footer d-flex justify-content-end">
+            <button data-bs-toggle="modal" data-bs-target="#addUserForm" type="button" class="btn btn-primary btn-sm">Add</button>
+        </div>
+    </section>
+    <section class="modal fade" id="addUserForm" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addUserForm"><span class="fw-bold">NEW </span>User</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/user/add" method="post" class="row">
+                       <div class="col-12">
+                           <label for="name"><span class="fw-bold">Name:</span></label>
+                           <input id="name" name="name" type="text" class="form-control form-control-sm" required>
+                       </div>
+                        <div class="col-12">
+                            <label for="surname"><span class="fw-bold">Surname:</span></label>
+                            <input id="surname" name="surname" type="text" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="email"><span class="fw-bold">Email:</span></label>
+                            <input id="email" name="email" type="text" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="age"><span class="fw-bold">Age:</span></label>
+                            <input id="age" name="age" type="number" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="login"><span class="fw-bold">Login:</span></label>
+                            <input id="login" name="login" type="text" class="form-control form-control-sm" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button name="addUser" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+                    <button name="cancelAddingUser" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
 </body>
 </html>
