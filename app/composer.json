@@ -7,14 +7,16 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/dbal": "*",
+        "doctrine/doctrine-bundle": "^2.13",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.4.*",
         "symfony/runtime": "6.4.*",
+        "symfony/twig-bundle": "6.4.*",
+        "symfony/webpack-encore-bundle": "^2.2",
         "symfony/yaml": "6.4.*"
-    },
-    "require-dev": {
     },
     "config": {
         "allow-plugins": {
