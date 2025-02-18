@@ -16,7 +16,7 @@ class MainController extends AbstractController
         $this->userService = $userService;
     }
 
-    #[Route('/')]
+    #[Route('/', name: 'main')]
     public function index(): Response
     {
         $users = $this->userService->getAll();

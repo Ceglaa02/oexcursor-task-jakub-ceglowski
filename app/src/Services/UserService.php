@@ -30,4 +30,23 @@ class UserService
             return [];
         }
     }
+
+    public function add($data): bool{
+        try {
+            $this->connection->beginTransaction();
+            $this->connection->insert('users', $data);
+            $this->connection->commit();
+            return true;
+        }
+        catch (Exception $e) {
+            $this->logger->error($e->getMessage());
+            try {
+                $this->connection->rollBack();
+            }
+            catch (Exception $e) {
+                $this->logger->error($e->getMessage());
+            }
+            return false;
+        }
+    }
 }
