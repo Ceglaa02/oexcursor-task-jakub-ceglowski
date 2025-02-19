@@ -5,7 +5,7 @@ function getEditModal(user, id){
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title fs-5 h1"><span class="fw-bold">EDIT </span>${ user.name } ${ user.surname }</h2>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="${id}" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form action="/user/edit" method="post" class="row">
@@ -19,7 +19,7 @@ function getEditModal(user, id){
                             </div>
                             <div class="col-12">
                                 <label for="email"><span class="fw-bold">Email:</span></label>
-                                <input value="${ user.email }" id="email-${ id }" name="email" type="text" class="form-control form-control-sm" required>
+                                <input value="${ user.email }" id="email-${ id }" name="email" type="email" class="form-control form-control-sm" required>
                             </div>
                             <div class="col-12">
                                 <label for="age"><span class="fw-bold">Age:</span></label>
@@ -32,8 +32,8 @@ function getEditModal(user, id){
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button name="editUser" type="button" class="btn btn-primary" data-bs-dismiss="modal" datasrc="${ id }">Save</button>
-                        <button name="cancelEditingUser" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button name="editUser" type="button" class="btn btn-primary" data-bs-dismiss="${id}" datasrc="${ id }">Save</button>
+                        <button name="cancelEditingUser" type="button" class="btn btn-danger" data-bs-dismiss="${id}">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -172,7 +172,7 @@ function addUserListener(){
     });
 
     const modal = document.querySelector('#addUserForm');
-    modal.addEventListener('hidden.bs.modal',()=>{
+    modal.addEventListener('hidden.bs.modal',(e)=>{
         clearForm(form);
     });
 }
