@@ -17,20 +17,62 @@
 <body>
 <main class="container mt-2">
     <section class="card" name="users">
+        <div class="card-header">
+            <h1 class="fw-bold h3">List users</h1>
+        </div>
         {% if users %}
         <div class="card-body row">
             {% for user in users %}
-                <div class="col-12 row my-1">
-                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Name: </span>{{ user.name }}</div>
-                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Surname: </span>{{ user.surname }}</div>
-                    <div class="col-6 col-lg-3 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Email: </span>{{ user.email }}</div>
-                    <div class="col-6 col-lg-1 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Age: </span>{{ user.age }}</div>
-                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Login: </span>{{ user.login }}</div>
+                <div class="col-12 row my-1" id="user_{{ user.id }}">
+                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Name: </span><span data="name">{{ user.name }}</span></div>
+                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Surname: </span><span data="surname">{{ user.surname }}</span></div>
+                    <div class="col-6 col-lg-3 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Email: </span><span data="email">{{ user.email }}</span></div>
+                    <div class="col-6 col-lg-1 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Age: </span><span data="age">{{ user.age }}</span></div>
+                    <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Login: </span><span data="login">{{ user.login }}</span></div>
                     <div class="col-12 col-lg-2 d-flex justify-content-center align-items-center">
-                        <button type="button" class="btn btn-primary btn-sm me-1">Edit</button>
-                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                        <button data-bs-toggle="modal" data-bs-target="#editUserForm{{ user.id }}" type="button" class="btn btn-primary btn-sm me-1" name="edit" datasrc="{{ user.id }}">Edit</button>
+                        <button type="button" class="btn btn-danger btn-sm" name="delete" datasrc="{{ user.id }}">Delete</button>
                     </div>
                 </div>
+
+                <section class="modal fade" id="editUserForm{{ user.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5 h1"><span class="fw-bold">EDIT </span>{{ user.name }} {{ user.surname }}</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/user/edit" method="post" class="row">
+                                    <div class="col-12">
+                                        <label for="name"><span class="fw-bold">Name:</span></label>
+                                        <input value="{{ user.name }}" id="name-{{ user.id }}" name="name" type="text" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="surname"><span class="fw-bold">Surname:</span></label>
+                                        <input value="{{ user.surname }}" id="surname-{{ user.id }}" name="surname" type="text" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="email"><span class="fw-bold">Email:</span></label>
+                                        <input value="{{ user.email }}" id="email-{{ user.id }}" name="email" type="text" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="age"><span class="fw-bold">Age:</span></label>
+                                        <input value="{{ user.age }}" id="age-{{ user.id }}" name="age" type="number" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="login"><span class="fw-bold">Login:</span></label>
+                                        <input value="{{ user.login }}" id="login-{{ user.id }}" name="login" type="text" class="form-control form-control-sm" required>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button name="editUser" type="button" class="btn btn-primary" data-bs-dismiss="modal" datasrc="{{ user.id }}">Save</button>
+                                <button name="cancelEditingUser" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             {% endfor %}
         </div>
             {% else %}
@@ -43,7 +85,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="addUserForm"><span class="fw-bold">NEW </span>User</h1>
+                    <h2 class="modal-title fs-5 h1"><span class="fw-bold">NEW </span>User</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

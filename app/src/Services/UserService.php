@@ -31,12 +31,10 @@ class UserService
         }
     }
 
-    public function add($data): bool{
+    public function add($data): ?int{
         try {
-            $this->connection->beginTransaction();
             $this->connection->insert('users', $data);
-            $this->connection->commit();
-            return true;
+            return (int)$this->connection->lastInsertId();
         }
         catch (Exception $e) {
             $this->logger->error($e->getMessage());
@@ -46,6 +44,30 @@ class UserService
             catch (Exception $e) {
                 $this->logger->error($e->getMessage());
             }
+            return null;
+        }
+    }
+
+    public function delete($id): bool
+    {
+        try {
+            $this->connection->delete('users', ['id' => $id]);
+            return true;
+        }
+        catch (Exception $e) {
+            $this->logger->error($e->getMessage());
+            return false;
+        }
+    }
+
+    public function update($id, $data): bool
+    {
+        try {
+            $this->connection->update('users', $data, ['id' => $id]);
+            return true;
+        }
+        catch (Exception $e) {
+            $this->logger->error($e->getMessage());
             return false;
         }
     }
