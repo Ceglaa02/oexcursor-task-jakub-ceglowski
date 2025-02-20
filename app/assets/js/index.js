@@ -1,44 +1,13 @@
-function getEditModal(user, id){
-    return (
-        `<section class="modal fade" id="editUserForm${ id }" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title fs-5 h1"><span class="fw-bold">EDIT </span>${ user.name } ${ user.surname }</h2>
-                        <button type="button" class="btn-close" data-bs-dismiss="${id}" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="/user/edit" method="post" class="row">
-                            <div class="col-12">
-                                <label for="name"><span class="fw-bold">Name:</span></label>
-                                <input value="${ user.name }" id="name-${ id }" name="name" type="text" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="surname"><span class="fw-bold">Surname:</span></label>
-                                <input value="${ user.surname }" id="surname-${ id }" name="surname" type="text" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="email"><span class="fw-bold">Email:</span></label>
-                                <input value="${ user.email }" id="email-${ id }" name="email" type="email" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="age"><span class="fw-bold">Age:</span></label>
-                                <input value="${ user.age }" id="age-${ id }" name="age" type="number" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="login"><span class="fw-bold">Login:</span></label>
-                                <input value="${ user.login }" id="login-${ id }" name="login" type="text" class="form-control form-control-sm" required>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button name="editUser" type="button" class="btn btn-primary" data-bs-dismiss="${id}" datasrc="${ id }">Save</button>
-                        <button name="cancelEditingUser" type="button" class="btn btn-danger" data-bs-dismiss="${id}">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </section>`
-    );
+function editBtnListeners(btn, modal = null){
+    const btns = btn ? [btn] : document.querySelectorAll('button[data-bs-target="#editUserForm"]');
+    btns.forEach((btn)=>{
+        btn.addEventListener('click',()=>{
+            document.querySelector('button[name=editUser]').setAttribute('datasrc',btn.getAttribute('datasrc'));
+            if(modal !== null){
+                modal.show();
+            }
+        });
+    });
 }
 
 function updateViewUser(user, userId){
@@ -135,16 +104,9 @@ function viewUser(user){
     buttonsContent.append(deleteBtn);
 
     parentNode.append(buttonsContent);
-
-    const modal = (new DOMParser()).parseFromString( getEditModal(user, id), 'text/html').querySelector('section');
-    editBtn.onclick = ()=>{
-        (new bootstrap.Modal(modal)).show();
-    }
-
     usersContainer.append(parentNode);
-    usersContainer.append(modal);
 
-    editUserListener(modal);
+    editBtnListeners(editBtn, (new bootstrap.Modal(document.querySelector('#editUserForm'))));
     deleteUserListener(deleteBtn);
 }
 function addUserListener(){
@@ -195,28 +157,59 @@ function deleteUserListener(node){
     });
 }
 
-function editUserListener(modal){
-    const nodeList = (modal !== undefined && modal !== null) ? [modal] : document.querySelectorAll('section[id^=editUserForm]');
-    nodeList.forEach((node)=>{
-        const form = node.querySelector('form');
-        const btn = node.querySelector('button[type=button][name=editUser]');
+function editUserListener(){
+    const btn = document.querySelector('button[name=editUser]');
+    const form = document.querySelector('form[action="/user/edit"]');
 
-        btn.addEventListener('click',async ()=>{
-            const id = btn.getAttribute('datasrc');
-            const data = new FormData(form);
-            const response = await fetch(form.action + '/' + id, {
-                method: form.method,
-                body: data
-            });
-
-            if(!response.ok){
-                //obsłużyć błąd
-                return;
-            }
-
-            const result = await response.json();
-            updateViewUser(result?.user, id);
+    btn.addEventListener('click',async ()=>{
+        const id = btn.getAttribute('datasrc');
+        const data = new FormData(form);
+        const response = await fetch(form.action + '/' + id, {
+            method: form.method,
+            body: data
         });
+
+        if(!response.ok){
+            //obsłużyć błąd
+            return;
+        }
+
+        const result = await response.json();
+        updateViewUser(result?.user, id);
+        clearForm(form);
+    });
+
+    const modal = document.querySelector('#editUserForm');
+    modal.addEventListener('hidden.bs.modal',(e)=>{
+        clearForm(form);
+    });
+}
+
+function editModalShowListener(){
+    const modal = document.querySelector('#editUserForm');
+    modal.addEventListener('shown.bs.modal',()=>{
+        const confirmBtn = modal.querySelector('[name=editUser]');
+        const userId = confirmBtn.getAttribute('datasrc');
+
+        const row = document.querySelector('#user_' + userId);
+        const rowData = row.querySelectorAll('span[data]');
+        let name = '', surname = '';
+
+
+        rowData.forEach((data)=>{
+            const key = data.getAttribute('data');
+            const value = data.innerText;
+            if(key === 'name'){
+                name = value;
+            }
+            else if(key === 'surname'){
+                surname = value;
+            }
+            const modalRow = modal.querySelector(`[name=${key}]`);
+            modalRow.value = value;
+        });
+
+        modal.querySelector('#userInfo').innerText = name + " " + surname;
     });
 }
 
@@ -226,5 +219,7 @@ window.onload = () => {
         addUserListener();
         deleteUserListener();
         editUserListener();
+        editBtnListeners();
+        editModalShowListener();
     })();
 }

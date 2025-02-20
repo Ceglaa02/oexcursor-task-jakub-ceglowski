@@ -30,49 +30,10 @@
                     <div class="col-6 col-lg-1 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Age: </span><span data="age">{{ user.age }}</span></div>
                     <div class="col-6 col-lg-2 d-flex justify-content-center align-items-center"><span class="fw-bold me-1">Login: </span><span data="login">{{ user.login }}</span></div>
                     <div class="col-12 col-lg-2 d-flex justify-content-center align-items-center">
-                        <button data-bs-toggle="modal" data-bs-target="#editUserForm{{ user.id }}" type="button" class="btn btn-primary btn-sm me-1" name="edit" datasrc="{{ user.id }}">Edit</button>
+                        <button data-bs-toggle="modal" data-bs-target="#editUserForm" type="button" class="btn btn-primary btn-sm me-1" name="edit" datasrc="{{ user.id }}">Edit</button>
                         <button type="button" class="btn btn-danger btn-sm" name="delete" datasrc="{{ user.id }}">Delete</button>
                     </div>
                 </div>
-
-                <section class="modal fade" id="editUserForm{{ user.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h2 class="modal-title fs-5 h1"><span class="fw-bold">EDIT </span>{{ user.name }} {{ user.surname }}</h2>
-                                <button type="button" class="btn-close" data-bs-dismiss="{{ user.id }}" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="/user/edit" method="post" class="row">
-                                    <div class="col-12">
-                                        <label for="name"><span class="fw-bold">Name:</span></label>
-                                        <input value="{{ user.name }}" id="name-{{ user.id }}" name="name" type="text" class="form-control form-control-sm" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="surname"><span class="fw-bold">Surname:</span></label>
-                                        <input value="{{ user.surname }}" id="surname-{{ user.id }}" name="surname" type="text" class="form-control form-control-sm" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="email"><span class="fw-bold">Email:</span></label>
-                                        <input value="{{ user.email }}" id="email-{{ user.id }}" name="email" type="email" class="form-control form-control-sm" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="age"><span class="fw-bold">Age:</span></label>
-                                        <input value="{{ user.age }}" id="age-{{ user.id }}" name="age" type="number" class="form-control form-control-sm" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="login"><span class="fw-bold">Login:</span></label>
-                                        <input value="{{ user.login }}" id="login-{{ user.id }}" name="login" type="text" class="form-control form-control-sm" required>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button name="editUser" type="button" class="btn btn-primary" data-bs-dismiss="{{ user.id }}" datasrc="{{ user.id }}">Save</button>
-                                <button name="cancelEditingUser" type="button" class="btn btn-danger" data-bs-dismiss="{{ user.id }}">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
             {% endfor %}
         </div>
             {% else %}
@@ -86,7 +47,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title fs-5 h1"><span class="fw-bold">NEW </span>User</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="addUserForm" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form action="/user/add" method="post" class="row">
@@ -114,7 +75,45 @@
                 </div>
                 <div class="modal-footer">
                     <button name="addUser" type="button" class="btn btn-primary" data-bs-dismiss="addUserForm">Save</button>
-                    <button name="cancelAddingUser" type="button" class="btn btn-danger" data-bs-dismiss="addUserForm">Cancel</button>
+                    <button name="cancelAddingUser" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="modal fade" id="editUserForm" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5 h1"><span class="fw-bold">EDIT </span><span id="userInfo"></span></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/user/edit" method="post" class="row">
+                        <div class="col-12">
+                            <label for="name"><span class="fw-bold">Name:</span></label>
+                            <input value="" name="name" type="text" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="surname"><span class="fw-bold">Surname:</span></label>
+                            <input value="" name="surname" type="text" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="email"><span class="fw-bold">Email:</span></label>
+                            <input name="email" type="email" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="age"><span class="fw-bold">Age:</span></label>
+                            <input name="age" type="number" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="login"><span class="fw-bold">Login:</span></label>
+                            <input name="login" type="text" class="form-control form-control-sm" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button name="editUser" type="button" class="btn btn-primary" data-bs-dismiss="" datasrc="">Save</button>
+                    <button name="cancelEditingUser" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
