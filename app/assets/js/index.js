@@ -1,3 +1,19 @@
+function alert(title, msg, type){
+    let alertDiv = document.createElement("div");
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.role = "alert";
+    alertDiv.innerHTML = `
+                <span class="fw-bold">${title}</span> ${msg}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+    document.querySelector("[name=alerts]").appendChild(alertDiv);
+
+    let bsAlert = new bootstrap.Alert(alertDiv);
+
+    setTimeout(() => bsAlert.close(), 3000);
+}
+
 function checkEmailRegEx(email){
     return String(email)
         .toLowerCase()
@@ -209,9 +225,11 @@ function addUserListener(){
     });
 
     btn.addEventListener('click',async ()=>{
+        toggleSpinner();
         const data = new FormData(form);
 
         if(!validateForm(form)){
+            toggleSpinner();
             return;
         }
         else{
@@ -225,13 +243,17 @@ function addUserListener(){
         });
 
         if(!response.ok){
-            //obsłużyć błąd
+            toggleSpinner();
+            alert('Error','User not added','danger');
             return;
         }
 
         const result = await response.json();
         viewUser(result?.user);
         clearForm(form);
+        toggleSpinner();
+        alert('Success','User added','success');
+        checkUsers();
     });
 }
 
@@ -239,16 +261,20 @@ function deleteUserListener(node){
     const nodeList = (node !== undefined && node !== null) ? [node] : document.querySelectorAll('button[type=button][name=delete]');
     nodeList.forEach((btn)=>{
         btn.addEventListener('click',async ()=>{
+            toggleSpinner();
             const id = btn.getAttribute('datasrc');
             const response = await fetch(`/user/delete/${id}`);
             const result = await response.json();
 
             if(result?.success){
                 document.querySelector('#user_' + id)?.remove();
+                alert('Success','User deleted','success');
             }
             else{
-                //obsługa błędu
+                alert('Error','User not deleted','danger');
             }
+            toggleSpinner();
+            checkUsers();
         });
     });
 }
@@ -265,8 +291,10 @@ function editUserListener(){
     btn.addEventListener('click',async ()=>{
         const id = document.querySelector('input[name=currentUserId]').value;
         const data = new FormData(form);
+        toggleSpinner();
 
         if(!validateForm(form)){
+            toggleSpinner();
             return;
         }
         else{
@@ -280,17 +308,28 @@ function editUserListener(){
         });
 
         if(!response.ok){
-            //obsłużyć błąd
+            toggleSpinner();
+            alert('Error','User not edited','danger');
             return;
         }
 
         const result = await response.json();
         updateViewUser(result?.user, id);
         clearForm(form);
+        toggleSpinner();
+        alert('Success','User edited','success');
     });
 }
 
-function tooggleSpinner(){}
+function toggleSpinner(){
+    const spinner = document.querySelector('[name=spinner]');
+    if(spinner.classList.contains('d-none')){
+        spinner.classList.remove('d-none')
+    }
+    else {
+        spinner.classList.add('d-none')
+    };
+}
 
 function editModalShowListener(){
     const modal = document.querySelector('#editUserForm');
@@ -320,6 +359,17 @@ function editModalShowListener(){
     });
 }
 
+function checkUsers(){
+    const users = document.querySelectorAll(`[id^=user_]`).length;
+    const info = document.querySelector('[name=info]');
+    if(users === 0){
+        info.classList.remove('d-none');
+    }
+    else {
+        info.classList.add('d-none');
+    }
+}
+
 
 window.onload = () => {
     (function init(){
@@ -328,5 +378,6 @@ window.onload = () => {
         editUserListener();
         editBtnListeners();
         editModalShowListener();
+        checkUsers();
     })();
 }
