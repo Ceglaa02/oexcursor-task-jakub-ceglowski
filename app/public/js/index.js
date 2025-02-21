@@ -1,8 +1,95 @@
+function checkEmailRegEx(email){
+    return String(email)
+        .toLowerCase()
+        .match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
+}
+
+function duplicateValue(name, value, form){
+    const currentId = document.querySelector('input[name=currentUserId]').value;
+    let result = false;
+    const rows = document.querySelectorAll(`span[data=${name}]`);
+
+    rows.forEach((row)=>{
+        const span = document.querySelector('#user_' + currentId)
+            ?.querySelector(`[data=${name}]`);
+        if(form.action.includes('/user/edit') && span.innerText === String(value)){
+            return;
+        }
+        if(String(row.innerText) === String(value)){
+            result = true;
+        }
+    });
+
+    return result;
+}
+function validateForm(form){
+    let result = true;
+    const inputs = form.querySelectorAll('input[required]');
+    inputs.forEach((input)=>{
+        const feedback =
+            form.querySelector(`div:has(input[name=${input.name}])>div`) ??
+            document.createElement('div');
+
+        feedback.classList.add('d-flex');
+        const span = feedback.querySelector('span') ?? document.createElement('span');
+        span.innerHTML = '';
+        const container = form.querySelector(`div:has(input[name=${input.name}])`);
+
+        if(!input.value){
+            feedback.classList.add('invalid-feedback');
+            feedback.classList.remove('valid-feedback');
+            span.append("Value can't be empty");
+            result = false;
+        }
+        else if(input.name === 'email' && !checkEmailRegEx(input.value)){
+            feedback.classList.add('invalid-feedback');
+            feedback.classList.remove('valid-feedback');
+            span.append("Value must be email");
+            result = false;
+        }
+        else if((input.name === 'email' || input.name === 'login') && duplicateValue(input.name, input.value, form)){
+            feedback.classList.add('invalid-feedback');
+            feedback.classList.remove('valid-feedback');
+            span.append("Value can't be duplicate");
+            result = false;
+        }
+        else if((input.value.length > 50)){
+            feedback.classList.add('invalid-feedback');
+            feedback.classList.remove('valid-feedback');
+            span.append("Value is too long, max chars number must be not more than 50");
+            result = false;
+        }
+        else if(input.name === 'age' && input.value > 130){
+            feedback.classList.add('invalid-feedback');
+            feedback.classList.remove('valid-feedback');
+            span.append("Max age is 130");
+            result = false;
+        }
+        else if(input.name === 'age' && input.value < 1){
+            feedback.classList.add('invalid-feedback');
+            feedback.classList.remove('valid-feedback');
+            span.append("Min value is 1");
+            result = false;
+        }
+        else {
+            feedback.classList.add('valid-feedback');
+            feedback.classList.remove('invalid-feedback');
+            span.append("Value is fine");
+        }
+
+
+        feedback.append(span);
+        container.appendChild(feedback);
+    });
+    return result;
+}
 function editBtnListeners(btn, modal = null){
     const btns = btn ? [btn] : document.querySelectorAll('button[data-bs-target="#editUserForm"]');
     btns.forEach((btn)=>{
         btn.addEventListener('click',()=>{
-            document.querySelector('button[name=editUser]').setAttribute('datasrc',btn.getAttribute('datasrc'));
+            document.querySelector('input[name=currentUserId]').value = btn.getAttribute('datasrc');
             if(modal !== null){
                 modal.show();
             }
@@ -24,6 +111,9 @@ function clearForm(form){
     data.forEach((item)=>{
         item.value = "";
     });
+
+    const communicates = form.querySelectorAll('div.d-flex.invalid-feedback, div.d-flex.valid-feedback');
+    communicates.forEach(item => item.remove());
 }
 function viewUser(user){
     if(!user){
@@ -68,7 +158,7 @@ function viewUser(user){
         val.setAttribute('data', keyName);
         val.append(user[keyName]);
 
-        span.append(validName.charAt(0).toUpperCase() + validName.slice(1));
+        span.append(validName.charAt(0).toUpperCase() + validName.slice(1) + ':');
         content.append(span);
         content.append(val);
         parentNode.append(content);
@@ -110,13 +200,24 @@ function viewUser(user){
     deleteUserListener(deleteBtn);
 }
 function addUserListener(){
+    const modal = document.querySelector('#addUserForm');
     const btn = document.querySelector('button[name=addUser]');
     const form = document.querySelector('form[action="/user/add"]');
+
+    modal.addEventListener('hidden.bs.modal',(e)=>{
+        clearForm(form);
+    });
 
     btn.addEventListener('click',async ()=>{
         const data = new FormData(form);
 
-        //dodać walidacje formularza
+        if(!validateForm(form)){
+            return;
+        }
+        else{
+            const hideBtn = modal.querySelector('button[name=cancelAddingUser]');
+            hideBtn.click();
+        }
 
         const response = await fetch(form.action,{
             method: form.method,
@@ -130,11 +231,6 @@ function addUserListener(){
 
         const result = await response.json();
         viewUser(result?.user);
-        clearForm(form);
-    });
-
-    const modal = document.querySelector('#addUserForm');
-    modal.addEventListener('hidden.bs.modal',(e)=>{
         clearForm(form);
     });
 }
@@ -161,9 +257,23 @@ function editUserListener(){
     const btn = document.querySelector('button[name=editUser]');
     const form = document.querySelector('form[action="/user/edit"]');
 
+    const modal = document.querySelector('#editUserForm');
+    modal.addEventListener('hidden.bs.modal',()=>{
+        clearForm(form);
+    });
+
     btn.addEventListener('click',async ()=>{
-        const id = btn.getAttribute('datasrc');
+        const id = document.querySelector('input[name=currentUserId]').value;
         const data = new FormData(form);
+
+        if(!validateForm(form)){
+            return;
+        }
+        else{
+            const hideBtn = modal.querySelector('button[name=cancelEditingUser]');
+            hideBtn.click();
+        }
+
         const response = await fetch(form.action + '/' + id, {
             method: form.method,
             body: data
@@ -178,18 +288,15 @@ function editUserListener(){
         updateViewUser(result?.user, id);
         clearForm(form);
     });
-
-    const modal = document.querySelector('#editUserForm');
-    modal.addEventListener('hidden.bs.modal',(e)=>{
-        clearForm(form);
-    });
 }
+
+function tooggleSpinner(){}
 
 function editModalShowListener(){
     const modal = document.querySelector('#editUserForm');
     modal.addEventListener('shown.bs.modal',()=>{
         const confirmBtn = modal.querySelector('[name=editUser]');
-        const userId = confirmBtn.getAttribute('datasrc');
+        const userId = document.querySelector('[name=currentUserId]').value;
 
         const row = document.querySelector('#user_' + userId);
         const rowData = row.querySelectorAll('span[data]');
